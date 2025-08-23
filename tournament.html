@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>📋 Tournament Control Center</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+   <nav class="navbar">
+  <div class="logo-wrapper">
+    <img src="Images/ERL.img" alt="Logo" class="logo-img" />
+    <span class="logo-text">Elite Rematch League</span>
+  </div>
+
+  <div class="hamburger" id="hamburger">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+
+  <div class="nav-links" id="navLinks">
+    <a href="index.html">Home</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="tournament.html">Tournament</a>
+    <a href="rules.html">Rules</a>
+    <a href="join.html">Join Us</a>
+  </div>
+</nav>
+
+  <main class="page-content">
+    <h2>📋 Tournament Control Center</h2>
+    <!-- Schedules -->
+    <section class="panel">
+      <h3>Match Schedules</h3>
+      <div id="scheduleList"><!-- Inject via JS/API --></div>
+    </section>
+
+    <!-- Results Submission -->
+    <section class="panel">
+      <h3>Results Submission</h3>
+      <form action="https://formspree.io/" method="POST" class="form">
+        <input type="text" name="match_id" placeholder="Match ID" required>
+        <input type="text" name="winner" placeholder="Winning Team" required>
+        <textarea name="notes" placeholder="Post-game notes..."></textarea>
+        <input type="file" name="clip" accept="video/*">
+        <button type="submit" class="btn-primary">Submit Result</button>
+      </form>
+    </section>
+
+    <!-- Bracket Visualizer -->
+    <section class="panel">
+      <h3>Bracket Visualizer</h3>
+      <div id="bracketContainer"><!-- Render bracket via JS --></div>
+    </section>
+  </main>
+
+  <footer>&copy; 2025 Elite Rematch League</footer>
+  <script src="script.js"></script>
+</body>
+</html>
