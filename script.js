@@ -20,7 +20,7 @@ const observer = new IntersectionObserver((entries, obs) => {
 
 // Join Discord
 const joinBtn = document.getElementById('joinBtn');
-if(joinBtn) joinBtn.onclick = () => window.location.href = 'https://discord.gg/RgAnVV7aKN';
+if(joinBtn) joinBtn.onclick = () => window.location.href = 'https://discord.gg/7SBuJNFMVx';
 
 
 // Accordion for rules
