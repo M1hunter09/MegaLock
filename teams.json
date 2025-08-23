@@ -22,5 +22,19 @@
     "region": "NA"
   },
 { "section": "PC Teams" },
+  {
+    "name": "Reign FC",
+    "manager": "Daddyboi5-",
+    "flagged": "No",
+    "platform": "PC",
+    "region": "NA"
+  }
 { "section": "Xbox Teams" },
+  {
+    "name": "Reign FC",
+    "manager": "Daddyboi5-",
+    "flagged": "No",
+    "platform": "Xbox",
+    "region": "NA"
+  }
 ]
