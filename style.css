@@ -278,11 +278,17 @@ footer {
 }
 
 .join-us {
+  padding: 2rem;
   text-align: center;
-  padding: 4rem 2rem;
   border-radius: 1rem;
+  transition: transform var(--transition);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   max-width: 800px;
-  margin: 4rem auto;
+  margin: auto;
 }
 
 .join-us h2 {
