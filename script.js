@@ -136,3 +136,47 @@ flagFilter?.addEventListener('change', applyFilters);
 platformFilter?.addEventListener('change', applyFilters);
 regionFilter?.addEventListener('change', applyFilters);
 clearBtn?.addEventListener('click', clearFilters);
+
+
+// bracket script
+async function loadBracket() {
+  try {
+    const res = await fetch('bracket.json');
+    const bracketData = await res.json();
+
+    const container = document.getElementById('bracketContainer');
+    container.innerHTML = '';
+
+    bracketData.rounds.forEach(round => {
+      const roundDiv = document.createElement('div');
+      roundDiv.classList.add('round');
+
+      const roundTitle = document.createElement('h4');
+      roundTitle.innerText = round.name;
+      roundDiv.appendChild(roundTitle);
+
+      round.matches.forEach(match => {
+        const matchDiv = document.createElement('div');
+        matchDiv.classList.add('match');
+
+        matchDiv.innerHTML = `
+          <span class="team">${match.team1}</span>
+          <span class="vs">vs</span>
+          <span class="team">${match.team2}</span>
+          <span class="winner">${match.winner ? `Winner: ${match.winner}` : ''}</span>
+        `;
+
+        roundDiv.appendChild(matchDiv);
+      });
+
+      container.appendChild(roundDiv);
+    });
+
+  } catch (err) {
+    console.error('Failed to load bracket:', err);
+    document.getElementById('bracketContainer').innerText = '⚠ Failed to load bracket';
+  }
+}
+
+loadBracket();
+
