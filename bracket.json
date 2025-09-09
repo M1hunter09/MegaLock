@@ -1,0 +1,17 @@
+{
+  "rounds": [
+    {
+      "name": "Quarterfinals",
+      "matches": [
+        { "team1": "team1", "team2": "team2", "winner": "team2" },
+        { "team1": "team1", "team2": "team2", "winner": "team1" }
+      ]
+    },
+    {
+      "name": "Semifinals",
+      "matches": [
+        { "team1": "team1", "team2": "team2", "winner": null }
+      ]
+    }
+  ]
+}
