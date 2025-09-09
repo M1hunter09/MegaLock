@@ -2,12 +2,21 @@
   "brackets": [
     {
       "name": "Tournament A",
-      "teams": ["Red Dragons", "Blue Wolves", "Green Giants", "Yellow Yaks", "Orange Otters"],
-      "results": {}
+      "teams": [
+        "Red Dragons", "Blue Wolves", "Green Giants", "Yellow Yaks",
+        "Orange Otters", "Purple Panthers", "Silver Sharks", "Golden Gophers"
+      ],
+      "results": {
+        "Red Dragons-Blue Wolves": "Red Dragons",
+        "Green Giants-Yellow Yaks": "Yellow Yaks"
+      }
     },
     {
       "name": "Tournament B",
-      "teams": ["Purple Panthers", "Silver Sharks", "Golden Gophers", "Black Bears"],
+      "teams": [
+        "Black Bears", "White Wolves", "Crimson Kings", "Azure Eagles",
+        "Bronze Bulls"
+      ],
       "results": {}
     }
   ]
