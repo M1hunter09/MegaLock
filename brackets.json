@@ -1,0 +1,14 @@
+{
+  "brackets": [
+    {
+      "name": "Tournament A",
+      "teams": ["Red Dragons", "Blue Wolves", "Green Giants", "Yellow Yaks", "Orange Otters"],
+      "results": {}
+    },
+    {
+      "name": "Tournament B",
+      "teams": ["Purple Panthers", "Silver Sharks", "Golden Gophers", "Black Bears"],
+      "results": {}
+    }
+  ]
+}
