@@ -142,94 +142,173 @@ clearBtn?.addEventListener('click', clearFilters);
 async function loadBrackets() {
   try {
     const res = await fetch('brackets.json');
+    if (!res.ok) throw new Error('Failed to fetch brackets.json');
     const data = await res.json();
+
     const container = document.getElementById('bracketContainer');
     container.innerHTML = '';
 
-    data.brackets.forEach(bracket => {
-      // Panel for each bracket
+    data.brackets.forEach((bracket, bracketIndex) => {
       const panel = document.createElement('div');
-      panel.classList.add('bracket-panel');
+      panel.className = 'bracket-panel';
 
-      const title = document.createElement('h4');
-      title.innerText = bracket.name;
+      // title
+      const title = document.createElement('div');
+      title.className = 'bracket-title';
+      title.textContent = bracket.name || `Bracket ${bracketIndex + 1}`;
       panel.appendChild(title);
 
-      const teams = bracket.teams;
+      // prepare teams and results
+      const teamsOrig = Array.isArray(bracket.teams) ? bracket.teams.slice() : [];
       const results = bracket.results || {};
-      let currentMatches = teams.map(t => [t]);
-      const roundsCount = Math.ceil(Math.log2(teams.length));
-      const roundDivs = [];
+      const totalTeams = Math.max(2, teamsOrig.length);
+      const size = Math.pow(2, Math.ceil(Math.log2(totalTeams)));
+      const teams = teamsOrig.slice(0);
+      while (teams.length < size) teams.push('BYE');
 
-      for (let round = 0; round < roundsCount; round++) {
+      const roundsCount = Math.log2(size);
+      const matchesByRound = [];
+
+      // Build rounds structure (teams -> matches)
+      let currentTeams = teams.map(t => ({ name: t }));
+      for (let r = 0; r < roundsCount; r++) {
+        const matches = [];
+        for (let i = 0; i < currentTeams.length; i += 2) {
+          const a = currentTeams[i] ? currentTeams[i].name : 'TBD';
+          const b = currentTeams[i + 1] ? currentTeams[i + 1].name : 'BYE';
+
+          // determine winner from results
+          const key1 = `${a}-${b}`;
+          const key2 = `${b}-${a}`;
+          const winner = (results[key1] || results[key2]) || null;
+
+          matches.push({ team1: a, team2: b, winner });
+        }
+
+        matchesByRound.push(matches);
+
+        // compute next round teams placeholders
+        const nextTeams = matches.map(m => ({ name: m.winner || (m.team1 === 'BYE' ? m.team2 : (m.team2 === 'BYE' ? m.team1 : 'TBD')) }));
+        currentTeams = nextTeams;
+      }
+
+      // create DOM: for each round create column with match nodes
+      const roundNodes = [];
+      matchesByRound.forEach((matches, rIdx) => {
         const roundDiv = document.createElement('div');
-        roundDiv.classList.add('round');
+        roundDiv.className = 'bracket-round';
         const roundTitle = document.createElement('h4');
-        roundTitle.innerText = `Round ${round + 1}`;
+        roundTitle.textContent = rIdx === 0 ? 'Round 1' : `Round ${rIdx + 1}`;
         roundDiv.appendChild(roundTitle);
 
-        const nextMatches = [];
-        currentMatches.forEach((match, i) => {
-          if (i % 2 === 0) {
-            const team1 = match[0] || 'TBD';
-            const team2 = (i + 1 < currentMatches.length) ? currentMatches[i + 1][0] : 'BYE';
+        const matchNodes = [];
+        matches.forEach(m => {
+          const matchDiv = document.createElement('div');
+          matchDiv.className = 'bracket-match';
+          if (m.winner) matchDiv.classList.add('has-winner');
 
-            const matchDiv = document.createElement('div');
-            matchDiv.classList.add('match');
-            matchDiv.innerHTML = `
-              <span class="team">${team1}</span>
-              <span class="vs">vs</span>
-              <span class="team">${team2}</span>
-              <span class="winner">${results[`${team1}-${team2}`] || ''}</span>
-            `;
-            roundDiv.appendChild(matchDiv);
-
-            const winner = results[`${team1}-${team2}`] || 'TBD';
-            nextMatches.push([winner]);
-          }
+          matchDiv.innerHTML = `
+            <span class="team team-a" title="${m.team1}">${m.team1}</span>
+            <span class="vs">vs</span>
+            <span class="team team-b" title="${m.team2}">${m.team2}</span>
+            <span class="winner">${m.winner ? `Winner: ${m.winner}` : ''}</span>
+          `;
+          roundDiv.appendChild(matchDiv);
+          matchNodes.push(matchDiv);
         });
 
-        roundDivs.push(roundDiv);
+        roundNodes.push(matchNodes);
         panel.appendChild(roundDiv);
-        currentMatches = nextMatches;
-      }
-
-      for (let r = 0; r < roundDivs.length - 1; r++) {
-        const thisRound = roundDivs[r].querySelectorAll('.match');
-        const nextRound = roundDivs[r + 1].querySelectorAll('.match');
-
-        for (let i = 0; i < nextRound.length; i++) {
-          const topMatch = thisRound[i * 2];
-          const bottomMatch = thisRound[i * 2 + 1];
-          const nextMatch = nextRound[i];
-
-          if (!topMatch) continue;
-          const hLine = document.createElement('div');
-          hLine.classList.add('connector-line');
-          hLine.style.height = '2px';
-          hLine.style.width = '40px';
-          hLine.style.top = `${topMatch.offsetTop + topMatch.offsetHeight / 2}px`;
-          hLine.style.left = `${topMatch.offsetLeft + topMatch.offsetWidth}px`;
-          panel.appendChild(hLine);
-
-          const vLine = document.createElement('div');
-          vLine.classList.add('connector-line');
-          vLine.style.width = '2px';
-          const topY = topMatch.offsetTop + topMatch.offsetHeight / 2;
-          const bottomY = (bottomMatch) ? bottomMatch.offsetTop + bottomMatch.offsetHeight / 2 : topY;
-          vLine.style.height = `${bottomY - topY}px`;
-          vLine.style.top = `${topY}px`;
-          vLine.style.left = `${nextMatch.offsetLeft - 20}px`;
-          panel.appendChild(vLine);
-        }
-      }
+      });
 
       container.appendChild(panel);
+
+      function clearConnectors() {
+        panel.querySelectorAll('.bracket-connector').forEach(el => el.remove());
+      }
+
+      function addHLine(x, y, width) {
+        const el = document.createElement('div');
+        el.className = 'bracket-connector hline';
+        el.style.left = `${x}px`;
+        el.style.top = `${y}px`;
+        el.style.width = `${width}px`;
+        panel.appendChild(el);
+        return el;
+      }
+
+      function addVLine(x, top, height) {
+        const el = document.createElement('div');
+        el.className = 'bracket-connector vline';
+        el.style.left = `${x}px`;
+        el.style.top = `${top}px`;
+        el.style.height = `${height}px`;
+        panel.appendChild(el);
+        return el;
+      }
+
+      function drawConnectors() {
+        clearConnectors();
+
+        requestAnimationFrame(() => {
+          const panelRect = panel.getBoundingClientRect();
+
+          for (let r = 0; r < roundNodes.length - 1; r++) {
+            const thisRound = roundNodes[r];
+            const nextRound = roundNodes[r + 1];
+
+            for (let j = 0; j < nextRound.length; j++) {
+              const topMatch = thisRound[j * 2];
+              const bottomMatch = thisRound[j * 2 + 1];
+              const nextMatch = nextRound[j];
+
+              if (!topMatch || !nextMatch) continue;
+
+              const topRect = topMatch.getBoundingClientRect();
+              const botRect = bottomMatch ? bottomMatch.getBoundingClientRect() : topRect;
+              const nextRect = nextMatch.getBoundingClientRect();
+
+              const startX1 = topRect.right - panelRect.left;
+              const startY1 = topRect.top + topRect.height / 2 - panelRect.top;
+
+              const startX2 = botRect.right - panelRect.left;
+              const startY2 = botRect.top + botRect.height / 2 - panelRect.top;
+
+              const endX = nextRect.left - panelRect.left;
+              const midX = endX - 12;
+
+              if (midX > startX1 + 2) addHLine(startX1, startY1 - 1, midX - startX1);
+              if (midX > startX2 + 2) addHLine(startX2, startY2 - 1, midX - startX2);
+
+              const vTop = Math.min(startY1, startY2);
+              const vBottom = Math.max(startY1, startY2);
+              const vHeight = Math.max(2, vBottom - vTop);
+              addVLine(midX - 1, vTop - 1, vHeight);
+            }
+          }
+        });
+      }
+
+      // initial draw
+      drawConnectors();
+
+      // redraw on resize and scroll of panel
+      let resizeTimer;
+      window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(drawConnectors, 120);
+      });
+
+      // if panel scrolls horizontally, connectors must update visually
+      panel.addEventListener('scroll', () => {
+        requestAnimationFrame(drawConnectors);
+      });
     });
 
   } catch (err) {
     console.error('Failed to load brackets:', err);
-    document.getElementById('bracketContainer').innerText = '⚠ Failed to load brackets';
+    const container = document.getElementById('bracketContainer');
+    if (container) container.innerText = '⚠ Failed to load brackets';
   }
 }
 
