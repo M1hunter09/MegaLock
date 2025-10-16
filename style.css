@@ -226,12 +226,12 @@ body {
   display: none;
 }
 
-.bracket-container {
-  display: flex;
-  flex-direction: column;
-  gap: 40px;
-  font-family: inherit;
-  width: 100%;
+.bracket-connector {
+  position: absolute;
+  background: var(--blue-light);
+  z-index: 1;
+  border-radius: 2px;
+  pointer-events: none;
 }
 
 .bracket-panel {
@@ -279,6 +279,7 @@ body {
   backdrop-filter: blur(6px);
   box-shadow: 0 6px 18px rgba(0,0,0,0.6);
   position: relative;
+  z-index: 2;
 }
 
 .bracket-match .team {
